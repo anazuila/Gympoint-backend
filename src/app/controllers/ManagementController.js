@@ -1,11 +1,12 @@
 import * as Yup from 'yup';
-import { startOfDay, isBefore, addMonths, parseISO, format } from 'date-fns';
+import { startOfDay, isBefore, addMonths, parseISO } from 'date-fns';
 import Management from '../models/Management';
 
 import Plans from '../models/Plans';
 import Students from '../models/Students';
 
-import Mail from '../../lib/Mail';
+import ManagementMail from '../jobs/ManagementMail';
+import Queue from '../../lib/Queue';
 
 class ManagementController {
   async store(req, res) {
@@ -53,15 +54,11 @@ class ManagementController {
 
     await management.save();
 
-    await Mail.sendMail({
-      to: `${student.name} <${student.email}>`,
-      subject: `Plano ${plans.title} contratado`,
-      template: 'management',
-      context: {
-        student: student.name,
-        finalDate: format(endDate, "'dia' dd 'de ' MMMM"),
-        totalPrice: finalPrice,
-      },
+    await Queue.add(ManagementMail.key, {
+      student,
+      plans,
+      endDate,
+      finalPrice,
     });
 
     return res.json({
