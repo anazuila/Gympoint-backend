@@ -1,4 +1,5 @@
 import { format, parseISO } from 'date-fns';
+import pt from 'date-fns/locale/pt';
 import Mail from '../../lib/Mail';
 
 class ManagementMail {
@@ -7,17 +8,18 @@ class ManagementMail {
   }
 
   async handle({ data }) {
-    const { student, plans, management } = data;
+    const { student, plans, endDate, finalPrice } = data;
 
-    console.log(data);
-    await Mail.sendMail({
+    Mail.sendMail({
       to: `${student.name} <${student.email}>`,
       subject: `Plano ${plans.title} contratado`,
       template: 'management',
       context: {
         student: student.name,
-        finalDate: format(parseISO(management.endDate), "'dia' dd 'de ' MMMM"),
-        totalPrice: management.finalPrice,
+        finalDate: format(parseISO(endDate), "'dia' dd 'de ' MMMM", {
+          locale: pt,
+        }),
+        totalPrice: finalPrice,
       },
     });
   }

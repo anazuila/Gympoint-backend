@@ -28,7 +28,7 @@ class PlansController {
 
   async index(req, res) {
     const plans = await Plans.findAll({
-      attributes: ['title', 'duration', 'price'],
+      attributes: ['id', 'title', 'duration', 'price'],
     });
 
     return res.json(plans);
